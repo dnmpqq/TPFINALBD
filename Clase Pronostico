@@ -1,0 +1,27 @@
+package Conecta;
+
+
+
+public class Pronostico {
+	private Partido partido;
+    private String resultadoPronosticado;
+    private String participante;
+
+    public Pronostico(Partido partido, String resultadoPronosticado, String participante) {
+        this.partido = partido;
+        this.resultadoPronosticado = resultadoPronosticado;
+        this.participante = participante;
+    }
+
+    public Partido getPartido() {
+        return partido;
+    }
+
+    public String getResultadoPronosticado() {
+        return resultadoPronosticado;
+    }
+
+    public String getParticipante() {
+        return participante;
+    }
+}
