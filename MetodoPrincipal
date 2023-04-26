@@ -1,0 +1,94 @@
+package Conecta;
+
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+
+public class DaniConnection {
+	
+	private static Connection cn;
+	public static Connection getConnection() {
+	
+	try {
+		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+		cn = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName = Cursada" , "sa" ,"Sql147ora");
+		cn.close();
+	} catch (Exception e) {
+		cn = null;
+	}
+	
+	return cn;
+	}
+	public static void main(String[] args) throws SQLException {
+		Connection pruebaCn = DaniConnection.getConnection();
+		if (pruebaCn!=null) {
+			System.out.println("Conectado");
+			System.out.println(pruebaCn);
+			Statement stm = pruebaCn.createStatement();
+			
+			ResultSet rst = stm.executeQuery("Select * from participantes");
+			 
+			
+			
+			//DEFINIMOS LOS PARTIDOS Y LOS PRONOSTICOS
+	        Partido partido1 = new Partido("Equipo A", "Equipo B", "1");
+	        Partido partido2 = new Partido("Equipo C", "Equipo D", "X");
+	        Pronostico pronostico1 = new Pronostico(partido1, "1", "Juan");
+	        Pronostico pronostico2 = new Pronostico(partido1, "2", "Maria");
+	        Pronostico pronostico3 = new Pronostico(partido2, "X", "Juan");
+	        Pronostico pronostico4 = new Pronostico(partido2, "1", "Maria");
+
+	        //DEFINIMOS LOS PARTICIPANTES Y LES AGREGAMOS SUS PRONOSTICOS
+	        Participantes participante1 = new Participantes("Juan");
+	        Participantes participante2 = new Participantes("Maria");
+	        participante1.addPronostico(pronostico1);
+	        participante1.addPronostico(pronostico3);
+	        participante2.addPronostico(pronostico2);
+	        participante2.addPronostico(pronostico4);
+	        //CON SELECT TOMAMOS LOS DATOS DEL PUNTA Y NOMBRE DE LOS PARTCIPANTES
+	        stm.executeUpdate("INSERT INTO tabla_participantes (nombre, puntaje) VALUES ('" + participante1.getNombre()+ "', " + participante1.getPuntajeTotal() + ")");
+	        stm.executeUpdate("INSERT INTO tabla_participantes (nombre, puntaje) VALUES ('" + participante2.getNombre()+ "', " + participante2.getPuntajeTotal() + ")");
+
+	         rst = stm.executeQuery("SELECT * FROM tabla_participantes");
+	        while (rst.next()) {
+	        	System.out.println("Nombre: " + rst.getString("nombre") + "Puntaje" + rst.getInt("Puntaje"));
+	        }
+	        
+	        //CALCULAMOS LOS PUNTAJES TOTALES DE LOS PARTICIPANTES
+	        participante1.calcularPuntajeTotal();
+	        participante2.calcularPuntajeTotal();
+
+	        //CREAMOS UNA LISTA CON LOS PARTICIPANTES Y LA ORDEMOS POR PUNTAJE
+	        List<Participantes> participantes = new ArrayList<>();
+	        participantes.add(participante1);
+	        participantes.add(participante2);
+	        Collections.sort(participantes, new Comparator<Participantes>() {
+	            
+	            public int compare(Participantes p1, Participantes p2) {
+	                return p2.getPuntajeTotal() - p1.getPuntajeTotal();
+	 }
+	        });
+
+	        // IMPRIMOS EL RESULTADO
+	        System.out.println("Resultado final:");
+	        for (Participantes participante : participantes) {
+	            System.out.println(participante.getNombre() + " - " + participante.getPuntajeTotal() + " puntos");
+	        }
+	    }
+		
+		else {
+			System.out.println("No se puedo conectar a la base de datos");
+		}
+	}
+	
+
+	
+   }
